@@ -6,6 +6,8 @@
     <title>Unity WebGL Player | WEbGL</title>
     <link rel="shortcut icon" href="TemplateData/favicon.ico">
     <link rel="stylesheet" href="TemplateData/style.css">
+    <script src="https://unpkg.com/qr-scanner@1.4.2/qr-scanner.umd.min.js"></script>
+
   </head>
   <body>
     <div id="unity-container" class="unity-desktop">
@@ -139,31 +141,71 @@
       document.body.appendChild(script);
     
       
-    let stream = null;
+let stream = null;
+let qrScanner = null;
 
-    function startCameraPreview() {
-        const video = document.getElementById("qrPreview");
+function startCameraPreview() {
+    const video = document.getElementById("qrPreview");
 
-        navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } })
-            .then(s => {
-                stream = s;
-                video.srcObject = stream;
-                video.style.display = "block";
-            })
-            .catch(err => {
-                console.error("Camera error:", err);
-            });
+    // Request camera access (rear camera if possible)
+    navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } })
+        .then(s => {
+            stream = s;
+            video.srcObject = stream;
+            video.style.display = "block";
+
+            // IMPORTANT: Wait for video to be ready before scanning
+            video.onloadedmetadata = () => {
+                video.play();
+
+                // Create QRScanner if not created yet
+                if (!qrScanner) {
+                    qrScanner = new QrScanner(
+                        video,
+                        result => {
+                            console.log("QR result:", result.data);
+                            // Stop scanning and camera
+                            stopCameraPreview();
+
+                            // Send result to Unity
+                            if (typeof unityInstance !== "undefined") {
+                                unityInstance.SendMessage("QRManager", "OnQRScanned", result.data);
+                            }
+                        },
+                        {
+                            // Optional config
+                            highlightScanRegion: false,
+                            highlightCodeOutline: true
+                        }
+                    );
+                }
+
+                // Start scanning
+                qrScanner.start().catch(err => {
+                    console.error("QR scanner start error:", err);
+                });
+            };
+        })
+        .catch(err => {
+            console.error("Camera error:", err);
+        });
+}
+
+function stopCameraPreview() {
+    const video = document.getElementById("qrPreview");
+    video.style.display = "none";
+
+    // Stop QR scanning
+    if (qrScanner) {
+        qrScanner.stop();
     }
 
-    function stopCameraPreview() {
-        const video = document.getElementById("qrPreview");
-        video.style.display = "none";
-
-        if (stream) {
-            stream.getTracks().forEach(t => t.stop());
-            stream = null;
-        }
+    // Stop camera stream
+    if (stream) {
+        stream.getTracks().forEach(t => t.stop());
+        stream = null;
     }
+}
 
     </script>
   </body>
