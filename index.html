@@ -165,10 +165,11 @@ function startCameraPreview() {
                         result => {
                             console.log("QR result:", result.data);
                             // Stop scanning and camera
-                            stopCameraPreview();
+                            
 
                             // Send result to Unity
                             if (typeof unityInstance !== "undefined") {
+                              stopCameraPreview();
                                 unityInstance.SendMessage("QRManager", "OnQRScanned", result.data);
                             }
                         },
