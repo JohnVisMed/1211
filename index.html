@@ -129,6 +129,7 @@
         createUnityInstance(canvas, config, (progress) => {
           progressBarFull.style.width = 100 * progress + "%";
               }).then((unityInstance) => {
+                window.unityInstance = instance;
                 loadingBar.style.display = "none";
                 fullscreenButton.onclick = () => {
                   unityInstance.SetFullscreen(1);
@@ -168,9 +169,9 @@ function startCameraPreview() {
                             
 
                             // Send result to Unity
-                            if (typeof unityInstance !== "undefined") {
+                            if (window.unityInstance) {
                               stopCameraPreview();
-                                unityInstance.SendMessage("QRManager", "OnQRScanned", result.data);
+                               window.unityInstance.SendMessage("QRManager", "OnQRScanned", result.data);
                             }
                         },
                         {
