@@ -152,7 +152,7 @@ function startCameraPreview() {
     const video = document.getElementById("qrPreview");
 
     // Request camera access (rear camera if possible)
-    navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment", width:{ideal: 1920}, height:{ideal: 1080} } })
+    navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment", width:{ideal: 1920}, height:{ideal: 1920} } })
         .then(s => {
             stream = s;
             video.srcObject = stream;
