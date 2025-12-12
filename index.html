@@ -116,9 +116,9 @@
 
       } else {
         // Desktop style: Render the game canvas in a window that can be maximized to fullscreen:
-
-        canvas.style.width = "960px";
-        canvas.style.height = "600px";
+        document.body.innerHTML = "<h2 style='text-align:center;margin-top:40px;'>This app is only available on mobile devices.</h2>"
+        // canvas.style.width = "960px";
+        // canvas.style.height = "600px";
       }
 
       loadingBar.style.display = "block";
